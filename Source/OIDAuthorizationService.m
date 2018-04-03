@@ -94,8 +94,9 @@ NS_ASSUME_NONNULL_BEGIN
   NSURL *standardizedURL = [URL standardizedURL];
   NSURL *standardizedRedirectURL = [_request.redirectURL standardizedURL];
 
-  return OIDIsEqualIncludingNil(standardizedURL.scheme, standardizedRedirectURL.scheme) &&
-      OIDIsEqualIncludingNil(standardizedURL.user, standardizedRedirectURL.user) &&
+    //Dont check for the scheme
+    //OIDIsEqualIncludingNil(standardizedURL.scheme, standardizedRedirectURL.scheme)
+    return OIDIsEqualIncludingNil(standardizedURL.user, standardizedRedirectURL.user) &&
       OIDIsEqualIncludingNil(standardizedURL.password, standardizedRedirectURL.password) &&
       OIDIsEqualIncludingNil(standardizedURL.host, standardizedRedirectURL.host) &&
       OIDIsEqualIncludingNil(standardizedURL.port, standardizedRedirectURL.port) &&
