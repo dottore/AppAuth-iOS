@@ -46,6 +46,7 @@ extern NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256;
   NSString *_clientSecret;
   NSString *_scope;
   NSURL *_redirectURL;
+  NSString *_customRedirectScheme;
   NSString *_state;
   NSString *_codeVerifier;
   NSString *_codeChallenge;
@@ -96,6 +97,10 @@ extern NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256;
     @see https://tools.ietf.org/html/rfc6749#section-3.1.2
  */
 @property(nonatomic, readonly, nullable) NSURL *redirectURL;
+
+/*! @brief The client's custom redirect Scheme.
+*/
+@property(nonatomic, readonly, nullable) NSString *customRedirectScheme;
 
 /*! @brief An opaque value used by the client to maintain state between the request and callback.
     @remarks state
@@ -157,6 +162,7 @@ extern NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256;
                  clientId:(NSString *)clientID
                    scopes:(nullable NSArray<NSString *> *)scopes
               redirectURL:(NSURL *)redirectURL
+             customRedirectScheme:(NSString *)customRedirectScheme
              responseType:(NSString *)responseType
      additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters;
 
@@ -178,6 +184,7 @@ extern NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256;
              clientSecret:(nullable NSString *)clientSecret
                    scopes:(nullable NSArray<NSString *> *)scopes
               redirectURL:(NSURL *)redirectURL
+           customRedirectScheme:(NSString *)customRedirectScheme
              responseType:(NSString *)responseType
      additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters;
 
@@ -204,6 +211,7 @@ extern NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256;
              clientSecret:(nullable NSString *)clientSecret
                     scope:(nullable NSString *)scope
               redirectURL:(nullable NSURL *)redirectURL
+           customRedirectScheme:(NSString *)customRedirectScheme
              responseType:(NSString *)responseType
                     state:(nullable NSString *)state
              codeVerifier:(nullable NSString *)codeVerifier
