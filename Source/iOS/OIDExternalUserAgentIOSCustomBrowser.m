@@ -37,6 +37,15 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize canOpenURLScheme = _canOpenURLScheme;
 @synthesize appStoreURL = _appStoreURL;
 
++ (instancetype)CustomBrowserWebAtWork {
+    OIDCustomBrowserURLTransformation transform = [[self class] URLTransformationSchemeSubstitutionHTTPS:@"mibrowsers" HTTP:@"mibrowser"];
+    NSURL *appStoreURL =
+    [NSURL URLWithString:@"itms-apps://itunes.apple.com/app/mobileiron-web-work/id596170970"];
+    return [[[self class] alloc] initWithURLTransformation:transform
+                                          canOpenURLScheme:@"mibrowsers"
+                                               appStoreURL:appStoreURL];
+}
+
 + (instancetype)CustomBrowserChrome {
   // Chrome iOS documentation: https://developer.chrome.com/multidevice/ios/links
   OIDCustomBrowserURLTransformation transform = [[self class] URLTransformationSchemeSubstitutionHTTPS:@"googlechromes" HTTP:@"googlechrome"];

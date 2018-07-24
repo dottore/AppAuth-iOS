@@ -49,6 +49,10 @@ typedef NSURL *_Nullable (^OIDCustomBrowserURLTransformation)(NSURL *_Nullable r
  */
 @property(nonatomic, readonly, nullable) NSURL *appStoreURL;
 
+/*! @brief An instance of @c OIDExternalUserAgentIOSCustomBrowser for WebAtWork.
+ */
++ (instancetype)CustomBrowserWebAtWork;
+
 /*! @brief An instance of @c OIDExternalUserAgentIOSCustomBrowser for Chrome.
  */
 + (instancetype)CustomBrowserChrome;
