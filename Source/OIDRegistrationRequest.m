@@ -49,15 +49,6 @@ static NSString *const kAdditionalParametersKey = @"additionalParameters";
 
 @implementation OIDRegistrationRequest
 
-@synthesize configuration = _configuration;
-@synthesize applicationType = _applicationType;
-@synthesize redirectURIs = _redirectURIs;
-@synthesize responseTypes = _responseTypes;
-@synthesize grantTypes = _grantTypes;
-@synthesize subjectType = _subjectType;
-@synthesize tokenEndpointAuthenticationMethod = _tokenEndpointAuthenticationMethod;
-@synthesize additionalParameters = _additionalParameters;
-
 #pragma mark - Initializers
 
 - (instancetype)init
@@ -69,7 +60,7 @@ static NSString *const kAdditionalParametersKey = @"additionalParameters";
                             subjectType:
                 tokenEndpointAuthMethod:
                    additionalParameters:)
-    );
+    )
 
 - (instancetype)initWithConfiguration:(OIDServiceConfiguration *)configuration
             redirectURIs:(NSArray<NSURL *> *)redirectURIs
@@ -159,7 +150,7 @@ static NSString *const kAdditionalParametersKey = @"additionalParameters";
                                                 encoding:NSUTF8StringEncoding];
   return [NSString stringWithFormat:@"<%@: %p, request: <URL: %@, HTTPBody: %@>>",
                                     NSStringFromClass([self class]),
-                                    self,
+                                    (void *)self,
                                     request.URL,
                                     requestBody];
 }

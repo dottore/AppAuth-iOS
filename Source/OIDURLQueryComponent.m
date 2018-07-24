@@ -26,7 +26,11 @@ BOOL gOIDURLQueryComponentForceIOS7Handling = NO;
  */
 static NSString *const kQueryStringParamAdditionalDisallowedCharacters = @"=&+";
 
-@implementation OIDURLQueryComponent
+@implementation OIDURLQueryComponent {
+  /*! @brief A dictionary of parameter names and values representing the contents of the query.
+   */
+  NSMutableDictionary<NSString *, NSMutableArray<NSString *> *> *_parameters;
+}
 
 - (nullable instancetype)init {
   self = [super init];
@@ -198,7 +202,7 @@ static NSString *const kQueryStringParamAdditionalDisallowedCharacters = @"=&+";
 - (NSString *)description {
   return [NSString stringWithFormat:@"<%@: %p, parameters: %@>",
                                     NSStringFromClass([self class]),
-                                    self,
+                                    (void *)self,
                                     _parameters];
 }
 

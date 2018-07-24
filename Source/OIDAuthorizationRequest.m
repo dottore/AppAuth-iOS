@@ -60,6 +60,10 @@ static NSString *const kCustomRedirectSchemeKey = @"custom_redirect_scheme";
  */
 static NSString *const kStateKey = @"state";
 
+/*! @brief Key used to encode the @c nonce property for @c NSSecureCoding, and on the URL request.
+ */
+static NSString *const kNonceKey = @"nonce";
+
 /*! @brief Key used to encode the @c codeVerifier property for @c NSSecureCoding.
  */
 static NSString *const kCodeVerifierKey = @"code_verifier";
@@ -96,19 +100,6 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
 
 @implementation OIDAuthorizationRequest
 
-@synthesize configuration = _configuration;
-@synthesize responseType = _responseType;
-@synthesize clientID = _clientID;
-@synthesize clientSecret = _clientSecret;
-@synthesize scope = _scope;
-@synthesize redirectURL = _redirectURL;
-@synthesize customRedirectScheme = _customRedirectScheme;
-@synthesize state = _state;
-@synthesize codeVerifier = _codeVerifier;
-@synthesize codeChallenge = _codeChallenge;
-@synthesize codeChallengeMethod = _codeChallengeMethod;
-@synthesize additionalParameters = _additionalParameters;
-
 - (instancetype)init
     OID_UNAVAILABLE_USE_INITIALIZER(
         @selector(initWithConfiguration:
@@ -118,7 +109,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                          customRedirectScheme:
                            responseType:
                    additionalParameters:)
-    );
+    )
 
 - (instancetype)initWithConfiguration:(OIDServiceConfiguration *)configuration
                 clientId:(NSString *)clientID
@@ -128,6 +119,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
             customRedirectScheme:(NSString *)customRedirectScheme
             responseType:(NSString *)responseType
                    state:(nullable NSString *)state
+                   nonce:(nullable NSString *)nonce
             codeVerifier:(nullable NSString *)codeVerifier
            codeChallenge:(nullable NSString *)codeChallenge
      codeChallengeMethod:(nullable NSString *)codeChallengeMethod
@@ -151,6 +143,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
       return nil;
     }
     _state = [state copy];
+    _nonce = [nonce copy];
     _codeVerifier = [codeVerifier copy];
     _codeChallenge = [codeChallenge copy];
     _codeChallengeMethod = [codeChallengeMethod copy];
@@ -183,6 +176,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                          customRedirectScheme:customRedirectScheme
                         responseType:responseType
                                state:[[self class] generateState]
+                               nonce:[[self class] generateState]
                         codeVerifier:codeVerifier
                        codeChallenge:codeChallenge
                  codeChallengeMethod:OIDOAuthorizationRequestCodeChallengeMethodS256
@@ -239,6 +233,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
   NSURL *redirectURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:kRedirectURLKey];
   NSString *customRedirectScheme = [aDecoder decodeObjectOfClass:[NSString class] forKey:kStateKey];
   NSString *state = [aDecoder decodeObjectOfClass:[NSString class] forKey:kStateKey];
+  NSString *nonce = [aDecoder decodeObjectOfClass:[NSString class] forKey:kNonceKey];
   NSString *codeVerifier = [aDecoder decodeObjectOfClass:[NSString class] forKey:kCodeVerifierKey];
   NSString *codeChallenge =
       [aDecoder decodeObjectOfClass:[NSString class] forKey:kCodeChallengeKey];
@@ -260,6 +255,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                          customRedirectScheme:customRedirectScheme
                         responseType:responseType
                                state:state
+                               nonce:nonce
                         codeVerifier:codeVerifier
                        codeChallenge:codeChallenge
                  codeChallengeMethod:codeChallengeMethod
@@ -276,6 +272,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
   [aCoder encodeObject:_redirectURL forKey:kRedirectURLKey];
   [aCoder encodeObject:_customRedirectScheme forKey:kCustomRedirectSchemeKey];
   [aCoder encodeObject:_state forKey:kStateKey];
+  [aCoder encodeObject:_nonce forKey:kNonceKey];
   [aCoder encodeObject:_codeVerifier forKey:kCodeVerifierKey];
   [aCoder encodeObject:_codeChallenge forKey:kCodeChallengeKey];
   [aCoder encodeObject:_codeChallengeMethod forKey:kCodeChallengeMethodKey];
@@ -287,7 +284,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
 - (NSString *)description {
   return [NSString stringWithFormat:@"<%@: %p, request: %@>",
                                     NSStringFromClass([self class]),
-                                    self,
+                                    (void *)self,
                                     self.authorizationRequestURL];
 }
 
@@ -333,6 +330,9 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
   }
   if (_state) {
     [query addParameter:kStateKey value:_state];
+  }
+  if (_nonce) {
+    [query addParameter:kNonceKey value:_nonce];
   }
   if (_codeChallenge) {
     [query addParameter:kCodeChallengeKey value:_codeChallenge];
