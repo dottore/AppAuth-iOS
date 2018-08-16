@@ -90,15 +90,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)shouldHandleURL:(NSURL *)URL {
   NSURL *standardizedURL = [URL standardizedURL];
-  NSURL *standardizedRedirectURL = [_request.redirectURL standardizedURL];
 
+  BOOL shouldHandleUrl = false;
   //Added custom redirect scheme logic
-  return OIDIsEqualIncludingNil(standardizedURL.scheme, _request.customRedirectScheme) &&
-    OIDIsEqualIncludingNil(standardizedURL.user, standardizedRedirectURL.user) &&
+  if (_request.customRedirectURL != nil) {
+      NSURL* customRedirectURL = _request.customRedirectURL;
+    shouldHandleUrl = OIDIsEqualIncludingNil(standardizedURL.user, customRedirectURL.user) &&
+    OIDIsEqualIncludingNil(standardizedURL.password, customRedirectURL.password) &&
+    OIDIsEqualIncludingNil(standardizedURL.host, customRedirectURL.host) &&
+    OIDIsEqualIncludingNil(standardizedURL.port, customRedirectURL.port) &&
+    OIDIsEqualIncludingNil(standardizedURL.path, customRedirectURL.path);
+  } else {
+    NSURL *standardizedRedirectURL = [_request.redirectURL standardizedURL];
+    shouldHandleUrl = OIDIsEqualIncludingNil(standardizedURL.user, standardizedRedirectURL.user) &&
     OIDIsEqualIncludingNil(standardizedURL.password, standardizedRedirectURL.password) &&
     OIDIsEqualIncludingNil(standardizedURL.host, standardizedRedirectURL.host) &&
     OIDIsEqualIncludingNil(standardizedURL.port, standardizedRedirectURL.port) &&
     OIDIsEqualIncludingNil(standardizedURL.path, standardizedRedirectURL.path);
+  }
+    return shouldHandleUrl;
 }
 
 - (BOOL)resumeExternalUserAgentFlowWithURL:(NSURL *)URL {

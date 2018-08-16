@@ -51,10 +51,10 @@ static NSString *const kScopeKey = @"scope";
  */
 static NSString *const kRedirectURLKey = @"redirect_uri";
 
-/*! @brief Key used to encode the @c customRedirectScheme property for @c NSSecureCoding, and on the URL
+/*! @brief Key used to encode the @c customRedirectURL property for @c NSSecureCoding, and on the URL
  request.
  */
-static NSString *const kCustomRedirectSchemeKey = @"custom_redirect_scheme";
+static NSString *const kcustomRedirectURLKey = @"custom_redirect_scheme";
 
 /*! @brief Key used to encode the @c state property for @c NSSecureCoding, and on the URL request.
  */
@@ -106,17 +106,44 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                                clientId:
                                  scopes:
                             redirectURL:
-                         customRedirectScheme:
+                         customRedirectURL:
                            responseType:
                    additionalParameters:)
     )
+
+- (instancetype) initWithConfiguration:(OIDServiceConfiguration *)configuration
+                              clientId:(NSString *)clientID
+                          clientSecret:(nullable NSString *)clientSecret
+                                 scope:(nullable NSString *)scope
+                           redirectURL:(nullable NSURL *)redirectURL
+                          responseType:(NSString *)responseType
+                                 state:(nullable NSString *)state
+                                 nonce:(nullable NSString *)nonce
+                          codeVerifier:(nullable NSString *)codeVerifier
+                         codeChallenge:(nullable NSString *)codeChallenge
+                   codeChallengeMethod:(nullable NSString *)codeChallengeMethod
+                  additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters {
+    return [self initWithConfiguration:configuration
+                              clientId:clientID
+                          clientSecret:clientSecret
+                                 scope:scope
+                           redirectURL:redirectURL
+                     customRedirectURL:nil
+                          responseType:responseType
+                                 state:state
+                                 nonce:nonce
+                          codeVerifier:codeVerifier
+                         codeChallenge:codeChallenge
+                   codeChallengeMethod:codeChallengeMethod
+                  additionalParameters:additionalParameters];
+}
 
 - (instancetype)initWithConfiguration:(OIDServiceConfiguration *)configuration
                 clientId:(NSString *)clientID
             clientSecret:(nullable NSString *)clientSecret
                    scope:(nullable NSString *)scope
              redirectURL:(NSURL *)redirectURL
-            customRedirectScheme:(NSString *)customRedirectScheme
+            customRedirectURL:(nullable NSURL *)customRedirectURL
             responseType:(NSString *)responseType
                    state:(nullable NSString *)state
                    nonce:(nullable NSString *)nonce
@@ -132,7 +159,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
     _clientSecret = [clientSecret copy];
     _scope = [scope copy];
     _redirectURL = [redirectURL copy];
-    _customRedirectScheme = [customRedirectScheme copy];
+    _customRedirectURL = [customRedirectURL copy];
     _responseType = [responseType copy];
     // Attention: Please refer to https://github.com/openid/AppAuth-iOS/issues/105
     // If you change the restriction on response type here, you must also update initWithCoder:
@@ -154,13 +181,30 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
   return self;
 }
 
+- (instancetype) initWithConfiguration:(OIDServiceConfiguration *)configuration
+                              clientId:(NSString *)clientID
+                          clientSecret:(NSString *)clientSecret
+                                scopes:(nullable NSArray<NSString *> *)scopes
+                           redirectURL:(NSURL *)redirectURL
+                          responseType:(NSString *)responseType
+                  additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters {
+    return [self initWithConfiguration:configuration
+                              clientId:clientID
+                          clientSecret:clientSecret
+                                scopes:scopes
+                           redirectURL:redirectURL
+                  customRedirectURL:nil
+                          responseType:responseType
+                  additionalParameters:additionalParameters];
+}
+
 - (instancetype)
    initWithConfiguration:(OIDServiceConfiguration *)configuration
                 clientId:(NSString *)clientID
             clientSecret:(NSString *)clientSecret
                   scopes:(nullable NSArray<NSString *> *)scopes
              redirectURL:(NSURL *)redirectURL
-          customRedirectScheme:(NSString *)customRedirectScheme
+          customRedirectURL:(nullable NSURL *)customRedirectURL
             responseType:(NSString *)responseType
     additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters {
 
@@ -173,7 +217,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                         clientSecret:clientSecret
                                scope:[OIDScopeUtilities scopesWithArray:scopes]
                          redirectURL:redirectURL
-                         customRedirectScheme:customRedirectScheme
+                         customRedirectURL:customRedirectURL
                         responseType:responseType
                                state:[[self class] generateState]
                                nonce:[[self class] generateState]
@@ -183,12 +227,27 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                 additionalParameters:additionalParameters];
 }
 
+- (instancetype) initWithConfiguration:(OIDServiceConfiguration *)configuration
+                              clientId:(NSString *)clientID
+                                scopes:(nullable NSArray<NSString *> *)scopes
+                           redirectURL:(NSURL *)redirectURL
+                          responseType:(NSString *)responseType
+                  additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters {
+    return [self initWithConfiguration:configuration
+                              clientId:clientID
+                                scopes:scopes
+                           redirectURL:redirectURL
+                     customRedirectURL:nil
+                          responseType:responseType
+                  additionalParameters:additionalParameters];
+}
+
 - (instancetype)
     initWithConfiguration:(OIDServiceConfiguration *)configuration
                  clientId:(NSString *)clientID
                    scopes:(nullable NSArray<NSString *> *)scopes
               redirectURL:(NSURL *)redirectURL
-            customRedirectScheme:(NSString *)customRedirectScheme
+            customRedirectURL:(nullable NSURL *)customRedirectURL
              responseType:(NSString *)responseType
     additionalParameters:(nullable NSDictionary<NSString *, NSString *> *)additionalParameters {
   return [self initWithConfiguration:configuration
@@ -196,7 +255,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                         clientSecret:nil
                               scopes:scopes
                          redirectURL:redirectURL
-                      customRedirectScheme: customRedirectScheme
+                      customRedirectURL: customRedirectURL
                         responseType:responseType
                 additionalParameters:additionalParameters];
 }
@@ -231,7 +290,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
   NSString *clientSecret = [aDecoder decodeObjectOfClass:[NSString class] forKey:kClientSecretKey];
   NSString *scope = [aDecoder decodeObjectOfClass:[NSString class] forKey:kScopeKey];
   NSURL *redirectURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:kRedirectURLKey];
-  NSString *customRedirectScheme = [aDecoder decodeObjectOfClass:[NSString class] forKey:kStateKey];
+  NSURL *customRedirectURL = [aDecoder decodeObjectOfClass:[NSString class] forKey:kStateKey];
   NSString *state = [aDecoder decodeObjectOfClass:[NSString class] forKey:kStateKey];
   NSString *nonce = [aDecoder decodeObjectOfClass:[NSString class] forKey:kNonceKey];
   NSString *codeVerifier = [aDecoder decodeObjectOfClass:[NSString class] forKey:kCodeVerifierKey];
@@ -252,7 +311,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
                         clientSecret:clientSecret
                                scope:scope
                          redirectURL:redirectURL
-                         customRedirectScheme:customRedirectScheme
+                         customRedirectURL:customRedirectURL
                         responseType:responseType
                                state:state
                                nonce:nonce
@@ -270,7 +329,7 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
   [aCoder encodeObject:_clientSecret forKey:kClientSecretKey];
   [aCoder encodeObject:_scope forKey:kScopeKey];
   [aCoder encodeObject:_redirectURL forKey:kRedirectURLKey];
-  [aCoder encodeObject:_customRedirectScheme forKey:kCustomRedirectSchemeKey];
+  [aCoder encodeObject:_customRedirectURL forKey:kcustomRedirectURLKey];
   [aCoder encodeObject:_state forKey:kStateKey];
   [aCoder encodeObject:_nonce forKey:kNonceKey];
   [aCoder encodeObject:_codeVerifier forKey:kCodeVerifierKey];
@@ -352,7 +411,11 @@ NSString *const OIDOAuthorizationRequestCodeChallengeMethodS256 = @"S256";
 }
 
 - (NSString *)redirectScheme {
-  return [self customRedirectScheme];
+  NSURL* schemeToUse = [self customRedirectURL];
+  if (schemeToUse == nil) {
+    schemeToUse = [self redirectURL];
+  }
+  return [schemeToUse scheme];
 }
 
 @end
